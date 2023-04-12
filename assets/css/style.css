@@ -1,0 +1,43 @@
+body {
+    background-color: #000;
+    font-family: 'Orbitron', sans-serif;
+    color: #006aff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    text-align: center;
+    max-width: 800px;
+}
+
+h1 {
+    font-size: 3rem;
+    margin-bottom: 1rem;
+}
+
+button {
+    background-color: #006aff;
+    color: #000;
+    border: none;
+    border-radius: 5px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.1rem;
+    padding: 10px 20px;
+    cursor: pointer;
+    margin-right: 1rem;
+}
+
+button:hover {
+    background-color: #006aff;
+}
+
+#transcript {
+    font-size: 1.5rem;
+    margin-top: 2rem;
+    word-wrap: break-word;
+}
