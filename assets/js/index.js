@@ -1,3 +1,6 @@
+import { fetchGPT3Response } from './openai.mjs';
+
+ 
  // Initialize the Web Speech API for voice recognition
  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
  const recognition = new SpeechRecognition();
@@ -35,10 +38,55 @@ async function handleResult(event) {
 
  // Process the user's voice command
  async function processCommand(text) {
-     const command = text.toLowerCase().trim();
-     const response = await fetchGPTResponse(command);
-     return response;
- }
+    try {
+        const response = await fetchGPT3Response(text);
+        return response;
+    } catch (error) {
+        console.error('Error processing command:', error);
+        return "I'm sorry, I encountered an error while processing your request. Please try again.";
+    }
+}
+async function recordSpeech() {
+    const recognition = new window.webkitSpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+
+    recognition.start();
+
+    recognition.addEventListener('speechstart', () => {
+        console.log('Speech has been detected.');
+    });
+
+    recognition.addEventListener('result', async (event) => {
+        console.log('Result has been detected.');
+
+        const transcript = event.results[0][0].transcript;
+
+        try {
+            const response = await processCommand(transcript);
+            speak(response);
+            addResponseToResults(transcript, response);
+        } catch (error) {
+            console.error('Error processing command:', error);
+            speak("I'm sorry, I encountered an error while processing your request. Please try again.");
+        }
+    });
+
+    recognition.addEventListener('speechend', () => {
+        recognition.stop();
+    });
+
+    recognition.addEventListener('error', (event) => {
+        console.error('Error:', event.error);
+    });
+}
+
+const listenButton = document.getElementById('listenButton');
+listenButton.addEventListener('click', () => {
+    recordSpeech().catch(err => console.error('Error in recordSpeech:', err));
+});
+
 
  // Connect to the OpenAI GPT API for real-time information searching
  async function fetchGPTResponse(prompt) {
