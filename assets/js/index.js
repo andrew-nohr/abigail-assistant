@@ -18,13 +18,20 @@
  recognition.addEventListener('end', () => console.log('Speech recognition has stopped'));
 
  // Handle the result of voice recognition
- async function handleResult(event) {
-     const text = event.results[0][0].transcript;
-     transcriptElement.textContent = `You said: ${text}`;
+ /* Update the handleResult function in your abigail.js file */
 
-     const response = await processCommand(text);
-     speak(response);
- }
+async function handleResult(event) {
+    const text = event.results[0][0].transcript;
+    const transcriptElement = document.getElementById('transcript');
+    transcriptElement.textContent = `You said: ${text}`;
+
+    const response = await processCommand(text);
+    speak(response);
+
+    // Create a card element and add it to the cards-container
+    createCard(text, response);
+}
+
 
  // Process the user's voice command
  async function processCommand(text) {
@@ -59,7 +66,26 @@
 
  // Speak the AI's response using the Web Speech API
  function speak(text) {
-     const speech = new SpeechSynthesisUtterance(text);
-     speech.lang = 'en-US';
-     window.speechSynthesis.speak(speech);
- }
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    // Get the list of available voices
+    const voices = speechSynthesis.getVoices();
+
+    // Filter voices based on language and name properties
+    const jarvisLikeVoices = voices.filter(voice => voice.lang.includes('en') && (voice.name.includes('Google UK English Male') || voice.name.includes('Microsoft David')));
+
+    // Choose the first Jarvis-like voice, if available
+    if (jarvisLikeVoices.length > 0) {
+        utterance.voice = jarvisLikeVoices[0];
+    } else {
+        // Choose the first English voice if no Jarvis-like voice is found
+        const englishVoices = voices.filter(voice => voice.lang.includes('en'));
+        if (englishVoices.length > 0) {
+            utterance.voice = englishVoices[0];
+        }
+    }
+
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    speechSynthesis.speak(utterance);
+}
