@@ -68,24 +68,37 @@ async function handleResult(event) {
  function speak(text) {
     const utterance = new SpeechSynthesisUtterance(text);
 
-    // Get the list of available voices
-    const voices = speechSynthesis.getVoices();
+    // Function to set the voice for the utterance
+    function setVoice() {
+        // Get the list of available voices
+        const voices = speechSynthesis.getVoices();
 
-    // Filter voices based on language and name properties
-    const jarvisLikeVoices = voices.filter(voice => voice.lang.includes('en') && (voice.name.includes('Google UK English Male') || voice.name.includes('Microsoft David')));
+        // Filter voices based on language and name properties
+        const femaleVoices = voices.filter(voice => voice.lang.includes('en') && (voice.name.includes('Google UK English Female') || voice.name.includes('Microsoft Zira')));
 
-    // Choose the first Jarvis-like voice, if available
-    if (jarvisLikeVoices.length > 0) {
-        utterance.voice = jarvisLikeVoices[0];
-    } else {
-        // Choose the first English voice if no Jarvis-like voice is found
-        const englishVoices = voices.filter(voice => voice.lang.includes('en'));
-        if (englishVoices.length > 0) {
-            utterance.voice = englishVoices[0];
+        // Choose the first female voice, if available
+        if (femaleVoices.length > 0) {
+            utterance.voice = femaleVoices[0];
+        } else {
+            // Choose the first English voice if no suitable female voice is found
+            const englishVoices = voices.filter(voice => voice.lang.includes('en'));
+            if (englishVoices.length > 0) {
+                utterance.voice = englishVoices[0];
+            }
         }
+
+        utterance.rate = 1.1; // Increase speech rate to 1.5x
+        utterance.pitch = 1.175;
+        speechSynthesis.speak(utterance);
     }
 
-    utterance.rate = 1;
-    utterance.pitch = 1;
-    speechSynthesis.speak(utterance);
+    if (speechSynthesis.getVoices().length === 0) {
+        // If voices are not loaded yet, wait for the voiceschanged event
+        speechSynthesis.addEventListener('voiceschanged', setVoice);
+    } else {
+        // If voices are already loaded, call setVoice directly
+        setVoice();
+    }
 }
+
+
